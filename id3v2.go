@@ -9,10 +9,12 @@ package id3v2
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"sync"
+	"unicode/utf16"
 )
 
 // This is an implementation of v2.4.0 of the ID3v2 tagging format,
@@ -40,12 +42,6 @@ func syncsafe(data []byte) uint32 {
 
 	return uint32(data[0])<<21 | uint32(data[1])<<14 |
 		uint32(data[2])<<7 | uint32(data[3])
-}
-
-func beUint32(data []byte) uint32 {
-	_ = data[3]
-	return uint32(data[0])<<24 | uint32(data[1])<<16 |
-		uint32(data[2])<<8 | uint32(data[3])
 }
 
 func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -123,8 +119,7 @@ func frameID(data []byte) FrameID {
 		// four character v2.3.0 tags with a trailing zero byte
 		// when upgrading the tagging format version.
 		(validIDByte(data[3]) || data[3] == 0) {
-		return FrameID(data[0])<<24 | FrameID(data[1])<<16 |
-			FrameID(data[2])<<8 | FrameID(data[3])
+		return FrameID(binary.BigEndian.Uint32(data))
 	}
 
 	for _, v := range data {
@@ -220,7 +215,7 @@ scan:
 					return nil, errors.New("id3: invalid frame size")
 				}
 			case 0x03:
-				size = beUint32(data[4:])
+				size = binary.BigEndian.Uint32(data[4:])
 			default:
 				panic("unhandled version")
 			}
@@ -231,7 +226,7 @@ scan:
 
 			frames = append(frames, &ID3Frame{
 				ID:    id,
-				Flags: uint16(data[8])<<8 | uint16(data[9]),
+				Flags: binary.BigEndian.Uint16(data[8:]),
 				Data:  append([]byte(nil), data[10:10+size]...),
 			})
 
@@ -285,20 +280,22 @@ func (f *ID3Frame) String() string {
 }
 
 func (f *ID3Frame) Text() (string, error) {
-	m := len(f.Data)
-	if m < 2 {
+	if len(f.Data) < 2 {
 		return "", errors.New("id3: frame data is invalid")
 	}
 
+	data := f.Data[1:]
+	var ord binary.ByteOrder = binary.BigEndian
+
 	switch f.Data[0] {
 	case 0x00:
-		for _, v := range f.Data {
+		for _, v := range data {
 			if v&0x80 == 0 {
 				continue
 			}
 
-			runes := make([]rune, len(f.Data))
-			for i, v := range f.Data {
+			runes := make([]rune, len(data))
+			for i, v := range data {
 				runes[i] = rune(v)
 			}
 
@@ -307,14 +304,47 @@ func (f *ID3Frame) Text() (string, error) {
 
 		fallthrough
 	case 0x03:
-		if f.Data[m-1] == 0x00 {
+		if data[len(data)-1] == 0x00 {
 			// The specification requires that the string be
 			// terminated with 0x00, but not all implementations
 			// do this.
-			m--
+			data = data[:len(data)-1]
 		}
 
-		return string(f.Data[1:m]), nil
+		return string(data), nil
+	case 0x01:
+		if len(data) < 2 {
+			return "", errors.New("id3: missing UTF-16 BOM")
+		}
+
+		if data[0] == 0xff && data[1] == 0xfe {
+			ord = binary.LittleEndian
+		} else if data[0] == 0xfe && data[1] == 0xff {
+			ord = binary.BigEndian
+		} else {
+			return "", errors.New("id3: invalid UTF-16 BOM")
+		}
+
+		data = data[2:]
+		fallthrough
+	case 0x02:
+		if len(data)%2 != 0 {
+			return "", errors.New("id3: UTF-16 data is not even number of bytes")
+		}
+
+		u16s := make([]uint16, len(data)/2)
+		for i := range u16s {
+			u16s[i] = ord.Uint16(data[i*2:])
+		}
+
+		if u16s[len(u16s)-1] == 0x0000 {
+			// The specification requires that the string be
+			// terminated with 0x00 0x00, but not all
+			// implementations do this.
+			u16s = u16s[:len(u16s)-1]
+		}
+
+		return string(utf16.Decode(u16s)), nil
 	default:
 		return "", errors.New("id3: frame uses unsupported encoding")
 	}
