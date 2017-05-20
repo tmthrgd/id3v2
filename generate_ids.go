@@ -155,6 +155,8 @@ type frameID struct {
 func main() {
 	out := flag.String("out", "frame_ids.go", "the file to write the ids to")
 
+	flag.Parse()
+
 	s := bufio.NewScanner(strings.NewReader(spec))
 	var ids []frameID
 
