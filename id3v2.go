@@ -130,17 +130,6 @@ scan:
 		}
 
 		flags := header[5]
-		if flags&flagExtendedHeader == flagExtendedHeader {
-			size := syncsafe(data)
-			if size == syncsafeInvalid {
-				return nil, errInvalidID3
-			}
-
-			extendedHeader := data[:size]
-			data = data[size:]
-
-			_ = extendedHeader
-		}
 
 		if flags&flagFooter == flagFooter {
 			footer := data[len(data)-10:]
@@ -150,6 +139,18 @@ scan:
 				!bytes.Equal(header[3:], footer[3:]) {
 				return nil, errInvalidID3
 			}
+		}
+
+		if flags&flagExtendedHeader == flagExtendedHeader {
+			size := syncsafe(data)
+			if size == syncsafeInvalid || len(data) < int(size) {
+				return nil, errInvalidID3
+			}
+
+			extendedHeader := data[:size]
+			data = data[size:]
+
+			_ = extendedHeader
 		}
 
 		for len(data) > 10 {
