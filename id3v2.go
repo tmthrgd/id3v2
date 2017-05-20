@@ -16,7 +16,8 @@ import (
 )
 
 // This is an implementation of v2.4.0 of the ID3v2 tagging format,
-// defined in: http://id3.org/id3v2.4.0-structure.
+// defined in: http://id3.org/id3v2.4.0-structure, and v2.3.0 of
+// the ID3v2 tagging format, defined in: http://id3.org/id3v2.3.0.
 
 var errInvalidID3 = errors.New("id3: invalid tag data")
 
@@ -41,6 +42,12 @@ func syncsafe(data []byte) uint32 {
 
 	return uint32(data[0])<<21 | uint32(data[1])<<14 |
 		uint32(data[2])<<7 | uint32(data[3])
+}
+
+func beUint32(data []byte) uint32 {
+	_ = data[3]
+	return uint32(data[0])<<24 | uint32(data[1])<<16 |
+		uint32(data[2])<<8 | uint32(data[3])
 }
 
 func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -156,8 +163,9 @@ scan:
 			panic("id3: bufio.Scanner failed")
 		}
 
-		switch header[3] {
-		case 0x04:
+		version := header[3]
+		switch version {
+		case 0x04, 0x03:
 		default:
 			continue scan
 		}
@@ -202,8 +210,20 @@ scan:
 				return nil, errInvalidID3
 			}
 
-			size := syncsafe(data[4:])
-			if size == syncsafeInvalid || len(data) < 10+int(size) {
+			var size uint32
+			switch version {
+			case 0x04:
+				size = syncsafe(data[4:])
+				if size == syncsafeInvalid {
+					return nil, errInvalidID3
+				}
+			case 0x03:
+				size = beUint32(data[4:])
+			default:
+				panic("unhandled version")
+			}
+
+			if len(data) < 10+int(size) {
 				return nil, errInvalidID3
 			}
 

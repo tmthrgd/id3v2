@@ -90,6 +90,15 @@ const (
 	FrameWPAY FrameID = 'W'<<24 | 'P'<<16 | 'A'<<8 | 'Y' // Payment
 	FrameWPUB FrameID = 'W'<<24 | 'P'<<16 | 'U'<<8 | 'B' // Publishers official webpage
 	FrameWXXX FrameID = 'W'<<24 | 'X'<<16 | 'X'<<8 | 'X' // User defined URL link frame
+	FrameEQUA FrameID = 'E'<<24 | 'Q'<<16 | 'U'<<8 | 'A' // Equalization
+	FrameIPLS FrameID = 'I'<<24 | 'P'<<16 | 'L'<<8 | 'S' // Involved people list
+	FrameRVAD FrameID = 'R'<<24 | 'V'<<16 | 'A'<<8 | 'D' // Relative volume adjustment
+	FrameTDAT FrameID = 'T'<<24 | 'D'<<16 | 'A'<<8 | 'T' // Date
+	FrameTIME FrameID = 'T'<<24 | 'I'<<16 | 'M'<<8 | 'E' // Time
+	FrameTORY FrameID = 'T'<<24 | 'O'<<16 | 'R'<<8 | 'Y' // Original release year
+	FrameTRDA FrameID = 'T'<<24 | 'R'<<16 | 'D'<<8 | 'A' // Recording dates
+	FrameTSIZ FrameID = 'T'<<24 | 'S'<<16 | 'I'<<8 | 'Z' // Size
+	FrameTYER FrameID = 'T'<<24 | 'Y'<<16 | 'E'<<8 | 'R' // Year
 )
 
 func (id FrameID) String() string {
@@ -260,6 +269,24 @@ func (id FrameID) String() string {
 		return "WPUB: Publishers official webpage"
 	case 'W'<<24 | 'X'<<16 | 'X'<<8 | 'X':
 		return "WXXX: User defined URL link frame"
+	case 'E'<<24 | 'Q'<<16 | 'U'<<8 | 'A':
+		return "EQUA: Equalization"
+	case 'I'<<24 | 'P'<<16 | 'L'<<8 | 'S':
+		return "IPLS: Involved people list"
+	case 'R'<<24 | 'V'<<16 | 'A'<<8 | 'D':
+		return "RVAD: Relative volume adjustment"
+	case 'T'<<24 | 'D'<<16 | 'A'<<8 | 'T':
+		return "TDAT: Date"
+	case 'T'<<24 | 'I'<<16 | 'M'<<8 | 'E':
+		return "TIME: Time"
+	case 'T'<<24 | 'O'<<16 | 'R'<<8 | 'Y':
+		return "TORY: Original release year"
+	case 'T'<<24 | 'R'<<16 | 'D'<<8 | 'A':
+		return "TRDA: Recording dates"
+	case 'T'<<24 | 'S'<<16 | 'I'<<8 | 'Z':
+		return "TSIZ: Size"
+	case 'T'<<24 | 'Y'<<16 | 'E'<<8 | 'R':
+		return "TYER: Year"
 	default:
 		buf := [4]byte{
 			byte(id >> 24),
