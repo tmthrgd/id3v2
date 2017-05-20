@@ -19,8 +19,6 @@ import (
 // defined in: http://id3.org/id3v2.4.0-structure, and v2.3.0 of
 // the ID3v2 tagging format, defined in: http://id3.org/id3v2.3.0.
 
-var errInvalidID3 = errors.New("id3: invalid tag data")
-
 const (
 	flagUnsynchronisation = 1 << (7 - iota)
 	flagExtendedHeader
@@ -178,14 +176,14 @@ scan:
 
 			if string(footer[:3]) != "3DI" ||
 				!bytes.Equal(header[3:], footer[3:]) {
-				return nil, errInvalidID3
+				return nil, errors.New("id3: invalid footer")
 			}
 		}
 
 		if flags&flagExtendedHeader == flagExtendedHeader {
 			size := syncsafe(data)
 			if size == syncsafeInvalid || len(data) < int(size) {
-				return nil, errInvalidID3
+				return nil, errors.New("id3: invalid extended header")
 			}
 
 			extendedHeader := data[:size]
@@ -207,7 +205,7 @@ scan:
 				// validity check below will handle this.
 				break frames
 			case invalidFrameID:
-				return nil, errInvalidID3
+				return nil, errors.New("id3: invalid frame id")
 			}
 
 			var size uint32
@@ -215,7 +213,7 @@ scan:
 			case 0x04:
 				size = syncsafe(data[4:])
 				if size == syncsafeInvalid {
-					return nil, errInvalidID3
+					return nil, errors.New("id3: invalid frame size")
 				}
 			case 0x03:
 				size = beUint32(data[4:])
@@ -224,7 +222,7 @@ scan:
 			}
 
 			if len(data) < 10+int(size) {
-				return nil, errInvalidID3
+				return nil, errors.New("id3: frame size exceeds length of tag data")
 			}
 
 			frames = append(frames, &ID3Frame{
@@ -237,12 +235,12 @@ scan:
 		}
 
 		if flags&flagFooter == flagFooter && len(data) != 0 {
-			return nil, errInvalidID3
+			return nil, errors.New("id3: padding with footer")
 		}
 
 		for _, v := range data {
 			if v != 0 {
-				return nil, errInvalidID3
+				return nil, errors.New("id3: invalid padding")
 			}
 		}
 	}
