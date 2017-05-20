@@ -15,6 +15,9 @@ import (
 	"sync"
 )
 
+// This is an implementation of v2.4.0 of the ID3v2 tagging format,
+// defined in: http://id3.org/id3v2.4.0-structure.
+
 var (
 	errIncompleteID3 = errors.New("id3: incomplete tag block")
 	errInvalidID3    = errors.New("id3: invalid tag data")
