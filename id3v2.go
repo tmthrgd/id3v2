@@ -117,8 +117,12 @@ func validIDByte(b byte) bool {
 func frameID(data []byte) FrameID {
 	_ = data[3]
 
-	if validIDByte(data[0]) && validIDByte(data[1]) &&
-		validIDByte(data[2]) && validIDByte(data[3]) {
+	if validIDByte(data[0]) && validIDByte(data[1]) && validIDByte(data[2]) &&
+		// Although it violates the specification, some software
+		// incorrectly encodes v2.2.0 three character tags as
+		// four character v2.3.0 tags with a trailing zero byte
+		// when upgrading the tagging format version.
+		(validIDByte(data[3]) || data[3] == 0) {
 		return FrameID(data[0])<<24 | FrameID(data[1])<<16 |
 			FrameID(data[2])<<8 | FrameID(data[3])
 	}
