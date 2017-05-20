@@ -26,6 +26,9 @@ const (
 	flagExtendedHeader
 	flagExperimental
 	flagFooter
+
+	knownFlags = flagUnsynchronisation | flagExtendedHeader |
+		flagExperimental | flagFooter
 )
 
 type FrameID uint32
@@ -92,6 +95,16 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if data[3] < 0x03 {
 		// This package only supports v2.3.0 and v2.4.0, skip
 		// versions bellow v2.3.0.
+		return i + 3, nil, nil
+	}
+
+	if data[5]&^knownFlags != 0 {
+		// Skip tag blocks that contain unknown flags.
+		//
+		// Quoting from §3.1 of id3v2.4.0-structure.txt:
+		//   If one of these undefined flags are set, the tag might
+		//   not be readable for a parser that does not know the
+		//   flags function.
 		return i + 3, nil, nil
 	}
 
