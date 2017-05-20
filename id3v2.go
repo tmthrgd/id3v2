@@ -80,16 +80,16 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
+	if data[5]&flagFooter == flagFooter {
+		size += 10
+	}
+
 	if len(data) < 10+int(size) {
 		if atEOF {
 			return 0, nil, io.ErrUnexpectedEOF
 		}
 
 		return i, nil, nil
-	}
-
-	if data[5]&flagFooter == flagFooter {
-		size += 10
 	}
 
 	return i + 10 + int(size), data[:10+size], nil
