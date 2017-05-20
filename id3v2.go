@@ -103,6 +103,31 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	return i + 10 + int(size), data[:10+size], nil
 }
 
+const invalidFrameID = ^FrameID(0)
+
+func validIDByte(b byte) bool {
+	return (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9')
+}
+
+func frameID(data []byte) FrameID {
+	_ = data[3]
+
+	if validIDByte(data[0]) && validIDByte(data[1]) &&
+		validIDByte(data[2]) && validIDByte(data[3]) {
+		return FrameID(data[0])<<24 | FrameID(data[1])<<16 |
+			FrameID(data[2])<<8 | FrameID(data[3])
+	}
+
+	for _, v := range data {
+		if v != 0 {
+			return invalidFrameID
+		}
+	}
+
+	// This is probably the begging of padding.
+	return 0
+}
+
 var bufPool = &sync.Pool{
 	New: func() interface{} {
 		buf := make([]byte, 4<<10)
@@ -163,11 +188,19 @@ scan:
 
 		// TODO: expose unsynchronisation flag
 
+	frames:
 		for len(data) > 10 {
 			_ = data[9]
 
-			id := FrameID(data[0])<<24 | FrameID(data[1])<<16 |
-				FrameID(data[2])<<8 | FrameID(data[3])
+			id := frameID(data)
+			switch id {
+			case 0:
+				// We've probably hit padding, the padding
+				// validity check below will handle this.
+				break frames
+			case invalidFrameID:
+				return nil, errInvalidID3
+			}
 
 			size := syncsafe(data[4:])
 			if size == syncsafeInvalid || len(data) < 10+int(size) {
