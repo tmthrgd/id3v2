@@ -32,16 +32,18 @@ const (
 
 type FrameID uint32
 
-func syncsafe(data []byte) (uint32, error) {
+const syncsafeInvalid = ^uint32(0)
+
+func syncsafe(data []byte) uint32 {
 	_ = data[3]
 
 	if data[0]&0x80 != 0 || data[1]&0x80 != 0 ||
 		data[2]&0x80 != 0 || data[3]&0x80 != 0 {
-		return 0, errInvalidID3
+		return syncsafeInvalid
 	}
 
 	return uint32(data[0])<<21 | uint32(data[1])<<14 |
-		uint32(data[2])<<7 | uint32(data[3]), nil
+		uint32(data[2])<<7 | uint32(data[3])
 }
 
 func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -63,13 +65,10 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i, nil, nil
 	}
 
-	if data[3] == 0xff || data[4] == 0xff {
-		return 0, nil, errInvalidID3
-	}
+	size := syncsafe(data[6:])
 
-	size, err := syncsafe(data[6:])
-	if err != nil {
-		return 0, nil, err
+	if data[3] == 0xff || data[4] == 0xff || size == syncsafeInvalid {
+		return 0, nil, errInvalidID3
 	}
 
 	if len(data) < 10+int(size) {
@@ -123,9 +122,9 @@ scan:
 
 		flags := header[5]
 		if flags&flagExtendedHeader == flagExtendedHeader {
-			size, err := syncsafe(data)
-			if err != nil {
-				return nil, err
+			size := syncsafe(data)
+			if size == syncsafeInvalid {
+				return nil, errInvalidID3
 			}
 
 			extendedHeader := data[:size]
@@ -150,12 +149,8 @@ scan:
 			id := FrameID(data[0])<<24 | FrameID(data[1])<<16 |
 				FrameID(data[2])<<8 | FrameID(data[3])
 
-			size, err := syncsafe(data[4:])
-			if err != nil {
-				return nil, err
-			}
-
-			if len(data) < 10+int(size) {
+			size := syncsafe(data[4:])
+			if size == syncsafeInvalid || len(data) < 10+int(size) {
 				return nil, errInvalidID3
 			}
 
