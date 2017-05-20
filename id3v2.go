@@ -89,6 +89,12 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
+	if data[3] < 0x03 {
+		// This package only supports v2.3.0 and v2.4.0, skip
+		// versions bellow v2.3.0.
+		return i + 3, nil, nil
+	}
+
 	if data[5]&flagFooter == flagFooter {
 		size += 10
 	}
