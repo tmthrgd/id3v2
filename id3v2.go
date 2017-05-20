@@ -253,6 +253,11 @@ type ID3Frame struct {
 }
 
 func (f *ID3Frame) String() string {
-	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: [%d]byte{...}}",
-		f.ID.String(), f.Flags, len(f.Data))
+	data, terminus := f.Data, ""
+	if len(data) > 128 {
+		data, terminus = data[:128], "..."
+	}
+
+	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: %q%s}",
+		f.ID.String(), f.Flags, data, terminus)
 }
