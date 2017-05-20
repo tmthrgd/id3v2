@@ -272,10 +272,10 @@ scan:
 
 type ID3Frames []*ID3Frame
 
-func (frames ID3Frames) Lookup(id FrameID) *ID3Frame {
-	for _, frame := range frames {
-		if frame.ID == id {
-			return frame
+func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
+	for i := len(f) - 1; i >= 0; i-- {
+		if f[i].ID == id {
+			return f[i]
 		}
 	}
 
