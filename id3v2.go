@@ -147,7 +147,7 @@ func Scan(r io.Reader) (ID3Frames, error) {
 	defer bufPool.Put(buf)
 
 	s := bufio.NewScanner(r)
-	s.Buffer(*buf.(*[]byte), bufio.MaxScanTokenSize)
+	s.Buffer(*buf.(*[]byte), 1<<28)
 	s.Split(id3Split)
 
 	var frames ID3Frames
