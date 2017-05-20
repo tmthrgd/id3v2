@@ -80,6 +80,14 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
+	if data[3] > 0x05 {
+		// Quoting from §3.1 of id3v2.4.0-structure.txt:
+		//   If software with ID3v2.4.0 and below support should
+		//   encounter version five or higher it should simply
+		//   ignore the whole tag.
+		return i + 3, nil, nil
+	}
+
 	if data[5]&flagFooter == flagFooter {
 		size += 10
 	}
