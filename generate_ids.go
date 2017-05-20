@@ -14,6 +14,9 @@ import (
 	"text/template"
 )
 
+// Taken from
+//  http://id3.org/id3v2.4.0-frames
+//   id3v2.4.0-frames.txt,v 1.1 2003/07/27 18:28:34 id3 Exp
 const spec = `
   4.19  AENC Audio encryption
   4.14  APIC Attached picture
