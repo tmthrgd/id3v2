@@ -68,7 +68,19 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	size := syncsafe(data[6:])
 
 	if data[3] == 0xff || data[4] == 0xff || size == syncsafeInvalid {
-		return 0, nil, errInvalidID3
+		// Skipping when we find the string "ID3" in the file but
+		// the remaining header is invalid is consistent with the
+		// detection logic in §3.1. This also reduces the
+		// likelihood of errors being caused by the byte sequence
+		// "ID3" (49 44 33) occuring in the audio, but does not
+		// eliminate the possibility of errors in this case.
+		//
+		// Quoting from §3.1 of id3v2.4.0-structure.txt:
+		//   An ID3v2 tag can be detected with the following pattern:
+		//     $49 44 33 yy yy xx zz zz zz zz
+		//   Where yy is less than $FF, xx is the 'flags' byte and zz
+		//   is less than $80.
+		return i + 3, nil, nil
 	}
 
 	if len(data) < 10+int(size) {
