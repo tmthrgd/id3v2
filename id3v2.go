@@ -278,8 +278,8 @@ func (f *ID3Frame) String() string {
 		data, terminus = data[:128], "..."
 	}
 
-	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: %q%s}",
-		f.ID.String(), f.Flags, data, terminus)
+	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: %d:%q%s}",
+		f.ID.String(), f.Flags, len(f.Data), data, terminus)
 }
 
 func (f *ID3Frame) Text() (string, error) {
