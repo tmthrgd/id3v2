@@ -281,3 +281,39 @@ func (f *ID3Frame) String() string {
 	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: %q%s}",
 		f.ID.String(), f.Flags, data, terminus)
 }
+
+func (f *ID3Frame) Text() (string, error) {
+	m := len(f.Data)
+	if m < 2 {
+		return "", errors.New("id3: frame data is invalid")
+	}
+
+	switch f.Data[0] {
+	case 0x00:
+		for _, v := range f.Data {
+			if v&0x80 == 0 {
+				continue
+			}
+
+			runes := make([]rune, len(f.Data))
+			for i, v := range f.Data {
+				runes[i] = rune(v)
+			}
+
+			return string(runes), nil
+		}
+
+		fallthrough
+	case 0x03:
+		if f.Data[m-1] == 0x00 {
+			// The specification requires that the string be
+			// terminated with 0x00, but not all implementations
+			// do this.
+			m--
+		}
+
+		return string(f.Data[1:m]), nil
+	default:
+		return "", errors.New("id3: frame uses unsupported encoding")
+	}
+}
