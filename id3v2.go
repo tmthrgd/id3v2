@@ -153,6 +153,8 @@ scan:
 			_ = extendedHeader
 		}
 
+		// TODO: expose unsynchronisation flag
+
 		for len(data) > 10 {
 			_ = data[9]
 
