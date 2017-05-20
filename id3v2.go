@@ -18,10 +18,7 @@ import (
 // This is an implementation of v2.4.0 of the ID3v2 tagging format,
 // defined in: http://id3.org/id3v2.4.0-structure.
 
-var (
-	errIncompleteID3 = errors.New("id3: incomplete tag block")
-	errInvalidID3    = errors.New("id3: invalid tag data")
-)
+var errInvalidID3 = errors.New("id3: invalid tag data")
 
 const (
 	flagUnsynchronisation = 1 << (7 - iota)
@@ -59,7 +56,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	data = data[i:]
 	if len(data) < 10 {
 		if atEOF {
-			return 0, nil, errIncompleteID3
+			return 0, nil, io.ErrUnexpectedEOF
 		}
 
 		return i, nil, nil
@@ -85,7 +82,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 	if len(data) < 10+int(size) {
 		if atEOF {
-			return 0, nil, errIncompleteID3
+			return 0, nil, io.ErrUnexpectedEOF
 		}
 
 		return i, nil, nil
