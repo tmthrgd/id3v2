@@ -22,13 +22,48 @@ import (
 // the ID3v2 tagging format, defined in: http://id3.org/id3v2.3.0.
 
 const (
-	flagUnsynchronisation = 1 << (7 - iota)
-	flagExtendedHeader
-	flagExperimental
-	flagFooter
+	tagFlagUnsynchronisation = 1 << (7 - iota)
+	tagFlagExtendedHeader
+	tagFlagExperimental
+	tagFlagFooter
 
-	knownFlags = flagUnsynchronisation | flagExtendedHeader |
-		flagExperimental | flagFooter
+	knownTagFlags = tagFlagUnsynchronisation | tagFlagExtendedHeader |
+		tagFlagExperimental | tagFlagFooter
+)
+
+type FrameFlags uint16
+
+const (
+	_ FrameFlags = 1 << (15 - iota)
+	FrameFlagV24TagAlterPreservation
+	FrameFlagV24FileAlterPreservation
+	FrameFlagV24ReadOnly
+	_
+	_
+	_
+	_
+	_
+	FrameFlagV24GroupingIdentity
+	_
+	_
+	FrameFlagV24Compression
+	FrameFlagV24Encryption
+	FrameFlagV24Unsynchronisation
+	FrameFlagV24DataLengthIndicator
+)
+
+const (
+	FrameFlagV23TagAlterPreservation FrameFlags = 1 << (15 - iota)
+	FrameFlagV23FileAlterPreservation
+	FrameFlagV23ReadOnly
+	_
+	_
+	_
+	_
+	_
+	FrameFlagV23Compression
+	FrameFlagV23Encryption
+	FrameFlagV23GroupingIdentity
 )
 
 type FrameID uint32
@@ -98,7 +133,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
-	if data[5]&^knownFlags != 0 {
+	if data[5]&^knownTagFlags != 0 {
 		// Skip tag blocks that contain unknown flags.
 		//
 		// Quoting from §3.1 of id3v2.4.0-structure.txt:
@@ -108,7 +143,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
-	if data[5]&flagFooter == flagFooter {
+	if data[5]&tagFlagFooter == tagFlagFooter {
 		size += 10
 	}
 
@@ -188,7 +223,7 @@ scan:
 
 		flags := header[5]
 
-		if flags&flagFooter == flagFooter {
+		if flags&tagFlagFooter == tagFlagFooter {
 			footer := data[len(data)-10:]
 			data = data[:len(data)-10]
 
@@ -198,7 +233,7 @@ scan:
 			}
 		}
 
-		if flags&flagExtendedHeader == flagExtendedHeader {
+		if flags&tagFlagExtendedHeader == tagFlagExtendedHeader {
 			size := syncsafe(data)
 			if size == syncsafeInvalid || len(data) < int(size) {
 				return nil, errors.New("id3: invalid extended header")
@@ -217,7 +252,7 @@ scan:
 			frame := &ID3Frame{
 				ID:      frameID(data),
 				Version: version,
-				Flags:   binary.BigEndian.Uint16(data[8:]),
+				Flags:   FrameFlags(binary.BigEndian.Uint16(data[8:])),
 			}
 
 			switch frame.ID {
@@ -265,7 +300,7 @@ scan:
 			data = data[10+size:]
 		}
 
-		if flags&flagFooter == flagFooter && len(data) != 0 {
+		if flags&tagFlagFooter == tagFlagFooter && len(data) != 0 {
 			return nil, errors.New("id3: padding with footer")
 		}
 
@@ -298,7 +333,7 @@ func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 type ID3Frame struct {
 	ID      FrameID
 	Version byte
-	Flags   uint16
+	Flags   FrameFlags
 	Data    []byte
 }
 
