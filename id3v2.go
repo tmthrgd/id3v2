@@ -394,7 +394,7 @@ func (f *Frame) String() string {
 // Text interprets the frame data as a text string,
 // according to §4 of id3v2.4.0-structure.txt.
 func (f *Frame) Text() (string, error) {
-	if len(f.Data) < 2 {
+	if len(f.Data) == 0 {
 		return "", errors.New("id3: frame data is invalid")
 	}
 
@@ -422,7 +422,7 @@ func (f *Frame) Text() (string, error) {
 
 		fallthrough
 	case textEncodingUTF8:
-		if data[len(data)-1] == 0x00 {
+		if len(data) != 0 && data[len(data)-1] == 0x00 {
 			// The specification requires that the string be
 			// terminated with 0x00, but not all implementations
 			// do this.
@@ -455,7 +455,7 @@ func (f *Frame) Text() (string, error) {
 			u16s[i] = ord.Uint16(data[i*2:])
 		}
 
-		if u16s[len(u16s)-1] == 0x0000 {
+		if len(u16s) != 0 && u16s[len(u16s)-1] == 0x0000 {
 			// The specification requires that the string be
 			// terminated with 0x00 0x00, but not all
 			// implementations do this.
