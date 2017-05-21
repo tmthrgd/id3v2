@@ -66,6 +66,8 @@ const (
 	FrameFlagV23GroupingIdentity
 )
 
+const encodingFrameFlags FrameFlags = 0x00ff
+
 type FrameID uint32
 
 const syncsafeInvalid = ^uint32(0)
@@ -368,8 +370,8 @@ func (f *ID3Frame) Text() (string, error) {
 		return "", errors.New("id3: frame data is invalid")
 	}
 
-	if f.Flags&0xff != 0 {
-		return "", errors.New("id3: frame flags are not supported")
+	if f.Flags&encodingFrameFlags != 0 {
+		return "", errors.New("id3: encoding frame flags are not supported")
 	}
 
 	data := f.Data[1:]
