@@ -6,10 +6,10 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -35,12 +35,11 @@ func scan(work workUnit) error {
 
 	tpe1 := frames.Lookup(id3v2.FrameTPE1)
 	if tpe1 == nil {
-		if filepath.Ext(work.path) == ".mp3" {
-			fmt.Printf("<%s>: missing TPE1 frame\n",
-				work.path)
+		if filepath.Ext(work.path) != ".mp3" {
+			return nil
 		}
 
-		return nil
+		return errors.New("missing TIT2 or TPE1 frame")
 	}
 
 	artist, err := tpe1.Text()
@@ -73,7 +72,7 @@ func scan(work workUnit) error {
 func worker(ch chan workUnit, wg *sync.WaitGroup) {
 	for work := range ch {
 		if err := scan(work); err != nil {
-			log.Println(work.path, err)
+			fmt.Fprintf(os.Stderr, "<%s>: %v\n", work.path, err)
 		}
 
 		wg.Done()
