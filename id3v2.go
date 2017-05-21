@@ -2,6 +2,7 @@
 // Use of this source code is governed by a Modified
 // BSD License that can be found in the LICENSE file.
 
+// Package id3v2 implements support for reading ID3v2 tags.
 package id3v2
 
 //go:generate go run generate_ids.go
@@ -21,10 +22,13 @@ import (
 // defined in: http://id3.org/id3v2.4.0-structure, and v2.3.0 of
 // the ID3v2 tagging format, defined in: http://id3.org/id3v2.3.0.
 
+// Version is the version of the ID3v2 tag block.
 type Version byte
 
 const (
+	// Version24 is v2.4.x of the ID3v2 specification.
 	Version24 Version = 0x04
+	// Version23 is v2.3.x of the ID3v2 specification.
 	Version23 Version = 0x03
 )
 
@@ -38,8 +42,10 @@ const (
 		tagFlagExperimental | tagFlagFooter
 )
 
+// FrameFlags are the frame-level ID3v2 flags.
 type FrameFlags uint16
 
+// These are the frame-level flags from v2.4.0 of the specification.
 const (
 	_ FrameFlags = 1 << (15 - iota)
 	FrameFlagV24TagAlterPreservation
@@ -59,6 +65,7 @@ const (
 	FrameFlagV24DataLengthIndicator
 )
 
+// These are the frame-level flags from v2.3.0 of the specification.
 const (
 	FrameFlagV23TagAlterPreservation FrameFlags = 1 << (15 - iota)
 	FrameFlagV23FileAlterPreservation
@@ -82,6 +89,7 @@ const (
 	textEncodingUTF8     = 0x03
 )
 
+// FrameID is a four-byte frame identifier.
 type FrameID uint32
 
 const syncsafeInvalid = ^uint32(0)
@@ -209,6 +217,9 @@ var bufPool = &sync.Pool{
 	},
 }
 
+// Scan reads all valid ID3v2 tags from the reader and
+// returns all the frames in order. It returns an error
+// if the tags are invalid.
 func Scan(r io.Reader) (ID3Frames, error) {
 	buf := bufPool.Get()
 	defer bufPool.Put(buf)
@@ -339,8 +350,11 @@ func Scan(r io.Reader) (ID3Frames, error) {
 	return frames, nil
 }
 
+// ID3Frames is a slice of ID3v2 frames.
 type ID3Frames []*ID3Frame
 
+// Lookup returns the last frame associated with a
+// given frame id, or nil.
 func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 	for i := len(f) - 1; i >= 0; i-- {
 		if f[i].ID == id {
@@ -351,6 +365,7 @@ func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 	return nil
 }
 
+// ID3Frame is a single ID3v2 frame.
 type ID3Frame struct {
 	ID      FrameID
 	Version Version
@@ -378,6 +393,8 @@ func (f *ID3Frame) String() string {
 		f.ID.String(), version, f.Flags, len(f.Data), data, terminus)
 }
 
+// Text interprets the frame data as a text string,
+// according to §4 of id3v2.4.0-structure.txt.
 func (f *ID3Frame) Text() (string, error) {
 	if len(f.Data) < 2 {
 		return "", errors.New("id3: frame data is invalid")

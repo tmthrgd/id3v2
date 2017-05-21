@@ -201,6 +201,8 @@ var tmpl = template.Must(template.New("").Parse(
 
 package id3v2
 
+// These are the standard frame ids as specified in the
+// v2.4.0 and v2.3.0 specifications.
 const (
 {{- range .}}
 	Frame{{.ID}} FrameID = '{{index .ID 0 | printf "%c"}}'<<24 | '{{index .ID 1 | printf "%c"}}'<<16 | '{{index .ID 2 | printf "%c"}}'<<8 | '{{index .ID 3 | printf "%c"}}' // {{.Description}}

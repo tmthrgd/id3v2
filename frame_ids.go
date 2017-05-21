@@ -6,6 +6,8 @@
 
 package id3v2
 
+// These are the standard frame ids as specified in the
+// v2.4.0 and v2.3.0 specifications.
 const (
 	FrameAENC FrameID = 'A'<<24 | 'E'<<16 | 'N'<<8 | 'C' // Audio encryption
 	FrameAPIC FrameID = 'A'<<24 | 'P'<<16 | 'I'<<8 | 'C' // Attached picture
