@@ -225,7 +225,7 @@ func Scan(r io.Reader) (Frames, error) {
 	defer bufPool.Put(buf)
 
 	s := bufio.NewScanner(r)
-	s.Buffer(*buf.(*[]byte), 1<<28)
+	s.Buffer(*buf.(*[]byte), 20+1<<28)
 	s.Split(id3Split)
 
 	var frames Frames
