@@ -374,19 +374,17 @@ type Frame struct {
 }
 
 func (f *Frame) String() string {
-	data, terminus := f.Data, ""
-	if len(data) > 128 {
-		data, terminus = data[:128], "..."
-	}
-
-	var version string
+	version := "?"
 	switch f.Version {
 	case Version24:
 		version = "v2.4"
 	case Version23:
 		version = "v2.3"
-	default:
-		version = "?"
+	}
+
+	data, terminus := f.Data, ""
+	if len(data) > 128 {
+		data, terminus = data[:128], "..."
 	}
 
 	return fmt.Sprintf("&ID3Frame{ID: %s, Version: %s, Flags: 0x%04x, Data: %d:%q%s}",
