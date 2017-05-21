@@ -260,9 +260,21 @@ func Scan(r io.Reader) (Frames, error) {
 		}
 
 		if flags&tagFlagExtendedHeader == tagFlagExtendedHeader {
-			size := syncsafe(data)
-			if size == syncsafeInvalid || len(data) < int(size) {
-				return nil, errors.New("id3: invalid extended header")
+			var size uint32
+			switch version {
+			case Version24:
+				size = syncsafe(data)
+				if size == syncsafeInvalid {
+					return nil, errors.New("id3: invalid extended header size")
+				}
+			case Version23:
+				size = binary.BigEndian.Uint32(data) + 4
+			default:
+				panic("unhandled version")
+			}
+
+			if len(data) < int(size) {
+				return nil, errors.New("id3: invalid extended header size")
 			}
 
 			extendedHeader := data[:size]
