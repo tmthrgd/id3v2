@@ -210,14 +210,16 @@ scan:
 			_ = extendedHeader
 		}
 
-		// TODO: expose unsynchronisation flag
-
 	frames:
 		for len(data) > 10 {
 			_ = data[9]
 
-			id := frameID(data)
-			switch id {
+			frame := &ID3Frame{
+				ID:    frameID(data),
+				Flags: binary.BigEndian.Uint16(data[8:]),
+			}
+
+			switch frame.ID {
 			case 0:
 				// We've probably hit padding, the padding
 				// validity check below will handle this.
@@ -243,12 +245,22 @@ scan:
 				return nil, errors.New("id3: frame size exceeds length of tag data")
 			}
 
-			frames = append(frames, &ID3Frame{
-				ID:    id,
-				Flags: binary.BigEndian.Uint16(data[8:]),
-				Data:  append([]byte(nil), data[10:10+size]...),
-			})
+			if flags&flagUnsynchronisation == flagUnsynchronisation {
+				frame.Data = make([]byte, 0, size)
 
+				for i := uint32(0); i < size; i++ {
+					v := data[10+i]
+					frame.Data = append(frame.Data, v)
+
+					if v == 0xff && i+1 < size && data[10+i+1] == 0x00 {
+						i++
+					}
+				}
+			} else {
+				frame.Data = append([]byte(nil), data[10:10+size]...)
+			}
+
+			frames = append(frames, frame)
 			data = data[10+size:]
 		}
 
