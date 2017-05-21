@@ -163,7 +163,6 @@ func main() {
 	defer w.Close()
 
 	bw := bufio.NewWriter(w)
-	defer bw.Flush()
 
 	for _, line := range out {
 		if _, err := io.WriteString(bw, *line); err != nil {
@@ -173,5 +172,9 @@ func main() {
 		if _, err := io.WriteString(bw, "\n"); err != nil {
 			panic(err)
 		}
+	}
+
+	if err := bw.Flush(); err != nil {
+		panic(err)
 	}
 }
