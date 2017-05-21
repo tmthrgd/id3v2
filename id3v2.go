@@ -212,7 +212,6 @@ func Scan(r io.Reader) (ID3Frames, error) {
 
 	var frames ID3Frames
 
-scan:
 	for s.Scan() {
 		data := s.Bytes()
 
@@ -227,7 +226,7 @@ scan:
 		switch version {
 		case Version24, Version23:
 		default:
-			continue scan
+			panic("id3: bufio.Scanner failed")
 		}
 
 		flags := header[5]
