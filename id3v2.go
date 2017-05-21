@@ -21,6 +21,13 @@ import (
 // defined in: http://id3.org/id3v2.4.0-structure, and v2.3.0 of
 // the ID3v2 tagging format, defined in: http://id3.org/id3v2.3.0.
 
+type Version byte
+
+const (
+	Version24 Version = 0x04
+	Version23 Version = 0x03
+)
+
 const (
 	tagFlagUnsynchronisation = 1 << (7 - iota)
 	tagFlagExtendedHeader
@@ -121,7 +128,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
-	if data[3] > 0x05 {
+	if Version(data[3]) > Version24 {
 		// Quoting from §3.1 of id3v2.4.0-structure.txt:
 		//   If software with ID3v2.4.0 and below support should
 		//   encounter version five or higher it should simply
@@ -129,7 +136,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return i + 3, nil, nil
 	}
 
-	if data[3] < 0x03 {
+	if Version(data[3]) < Version23 {
 		// This package only supports v2.3.0 and v2.4.0, skip
 		// versions bellow v2.3.0.
 		return i + 3, nil, nil
@@ -216,9 +223,9 @@ scan:
 			panic("id3: bufio.Scanner failed")
 		}
 
-		version := header[3]
+		version := Version(header[3])
 		switch version {
-		case 0x04, 0x03:
+		case Version24, Version23:
 		default:
 			continue scan
 		}
@@ -268,12 +275,12 @@ scan:
 
 			var size uint32
 			switch version {
-			case 0x04:
+			case Version24:
 				size = syncsafe(data[4:])
 				if size == syncsafeInvalid {
 					return nil, errors.New("id3: invalid frame size")
 				}
-			case 0x03:
+			case Version23:
 				size = binary.BigEndian.Uint32(data[4:])
 			default:
 				panic("unhandled version")
@@ -284,7 +291,7 @@ scan:
 			}
 
 			if flags&tagFlagUnsynchronisation == tagFlagUnsynchronisation ||
-				(version == 0x04 && frame.Flags&FrameFlagV24Unsynchronisation != 0) {
+				(version == Version24 && frame.Flags&FrameFlagV24Unsynchronisation != 0) {
 				frame.Data = make([]byte, 0, size)
 
 				for i := uint32(0); i < size; i++ {
@@ -296,7 +303,7 @@ scan:
 					}
 				}
 
-				if version == 0x04 {
+				if version == Version24 {
 					// Clear the frame level unsynchronisation flag
 					frame.Flags &^= FrameFlagV24Unsynchronisation
 				}
@@ -340,7 +347,7 @@ func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 
 type ID3Frame struct {
 	ID      FrameID
-	Version byte
+	Version Version
 	Flags   FrameFlags
 	Data    []byte
 }
@@ -353,9 +360,9 @@ func (f *ID3Frame) String() string {
 
 	var version string
 	switch f.Version {
-	case 0x04:
+	case Version24:
 		version = "v2.4"
-	case 0x03:
+	case Version23:
 		version = "v2.3"
 	default:
 		version = "?"
