@@ -75,6 +75,13 @@ const (
 
 const encodingFrameFlags FrameFlags = 0x00ff
 
+const (
+	textEncodingISO88591 = 0x00
+	textEncodingUTF16    = 0x01
+	textEncodingUTF16BE  = 0x02
+	textEncodingUTF8     = 0x03
+)
+
 type FrameID uint32
 
 const syncsafeInvalid = ^uint32(0)
@@ -384,7 +391,7 @@ func (f *ID3Frame) Text() (string, error) {
 	var ord binary.ByteOrder = binary.BigEndian
 
 	switch f.Data[0] {
-	case 0x00:
+	case textEncodingISO88591:
 		for _, v := range data {
 			if v&0x80 == 0 {
 				continue
@@ -399,7 +406,7 @@ func (f *ID3Frame) Text() (string, error) {
 		}
 
 		fallthrough
-	case 0x03:
+	case textEncodingUTF8:
 		if data[len(data)-1] == 0x00 {
 			// The specification requires that the string be
 			// terminated with 0x00, but not all implementations
@@ -408,7 +415,7 @@ func (f *ID3Frame) Text() (string, error) {
 		}
 
 		return string(data), nil
-	case 0x01:
+	case textEncodingUTF16:
 		if len(data) < 2 {
 			return "", errors.New("id3: missing UTF-16 BOM")
 		}
@@ -423,7 +430,7 @@ func (f *ID3Frame) Text() (string, error) {
 
 		data = data[2:]
 		fallthrough
-	case 0x02:
+	case textEncodingUTF16BE:
 		if len(data)%2 != 0 {
 			return "", errors.New("id3: UTF-16 data is not even number of bytes")
 		}
