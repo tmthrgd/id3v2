@@ -33,8 +33,10 @@ func scan(work workUnit) error {
 		return err
 	}
 
+	tit2 := frames.Lookup(id3v2.FrameTIT2)
 	tpe1 := frames.Lookup(id3v2.FrameTPE1)
-	if tpe1 == nil {
+
+	if tit2 == nil || tpe1 == nil {
 		if filepath.Ext(work.path) != ".mp3" {
 			return nil
 		}
@@ -42,17 +44,24 @@ func scan(work workUnit) error {
 		return errors.New("missing TIT2 or TPE1 frame")
 	}
 
+	title, err := tit2.Text()
+	if err != nil {
+		return err
+	}
+
 	artist, err := tpe1.Text()
 	if err != nil {
 		return err
 	}
 
-	ext := filepath.Ext(work.path)
-	if strings.HasSuffix(strings.TrimSuffix(work.path, ext), artist) {
+	newName := title + " - " + artist + filepath.Ext(work.path)
+	newName = strings.Replace(newName, string(filepath.Separator), "-", -1)
+
+	newPath := filepath.Join(filepath.Dir(work.path), newName)
+
+	if work.path == newPath {
 		return nil
 	}
-
-	newPath := strings.TrimSuffix(work.path, ext) + " - " + artist + ext
 
 	newURL := (&url.URL{
 		Scheme: "file",
@@ -60,7 +69,12 @@ func scan(work workUnit) error {
 	}).String()
 	*work.out = newURL
 
-	fmt.Printf("%s: %s\n", filepath.Base(work.path), artist)
+	name, padding := filepath.Base(work.path), " "
+	if len(name) < 100 {
+		padding = strings.Repeat(" ", 100-len(name))
+	}
+
+	fmt.Printf("%s%s%s\n", name, padding, filepath.Base(newPath))
 
 	if *dryrun {
 		return nil
