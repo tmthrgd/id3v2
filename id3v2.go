@@ -303,6 +303,10 @@ func (f *ID3Frame) Text() (string, error) {
 		return "", errors.New("id3: frame data is invalid")
 	}
 
+	if f.Flags&0xff != 0 {
+		return "", errors.New("id3: frame flags are not supported")
+	}
+
 	data := f.Data[1:]
 	var ord binary.ByteOrder = binary.BigEndian
 
