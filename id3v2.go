@@ -132,7 +132,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		// the remaining header is invalid is consistent with the
 		// detection logic in §3.1. This also reduces the
 		// likelihood of errors being caused by the byte sequence
-		// "ID3" (49 44 33) occuring in the audio, but does not
+		// "ID3" (49 44 33) occurring in the audio, but does not
 		// eliminate the possibility of errors in this case.
 		//
 		// Quoting from §3.1 of id3v2.4.0-structure.txt:
