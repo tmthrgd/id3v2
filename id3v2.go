@@ -281,7 +281,8 @@ scan:
 				return nil, errors.New("id3: frame size exceeds length of tag data")
 			}
 
-			if flags&flagUnsynchronisation == flagUnsynchronisation {
+			if flags&tagFlagUnsynchronisation == tagFlagUnsynchronisation ||
+				(version == 0x04 && frame.Flags&FrameFlagV24Unsynchronisation != 0) {
 				frame.Data = make([]byte, 0, size)
 
 				for i := uint32(0); i < size; i++ {
@@ -291,6 +292,11 @@ scan:
 					if v == 0xff && i+1 < size && data[10+i+1] == 0x00 {
 						i++
 					}
+				}
+
+				if version == 0x04 {
+					// Clear the frame level unsynchronisation flag
+					frame.Flags &^= FrameFlagV24Unsynchronisation
 				}
 			} else {
 				frame.Data = append([]byte(nil), data[10:10+size]...)
