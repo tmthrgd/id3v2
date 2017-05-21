@@ -88,8 +88,8 @@ type workUnit struct {
 func main() {
 	flag.Parse()
 
-	if flag.NArg() != 1 {
-		fmt.Println("Usage: id3-music-renamer.go [-dry-run] <m3u8 playlist>")
+	if flag.NArg() == 0 {
+		fmt.Println("Usage: id3-music-renamer.go [-dry-run] <m3u8 playlist> [<m3u8 playlist out>]")
 		os.Exit(1)
 	}
 
@@ -136,7 +136,14 @@ func main() {
 
 	wg.Wait()
 
-	w, err := os.Create(flag.Arg(0) + ".new.m3u8")
+	var outPath string
+	if flag.NArg() == 2 {
+		outPath = flag.Arg(1)
+	} else {
+		outPath = flag.Arg(0) + "-new.m3u8"
+	}
+
+	w, err := os.Create(outPath)
 	if err != nil {
 		panic(err)
 	}
