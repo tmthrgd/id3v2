@@ -215,8 +215,9 @@ scan:
 			_ = data[9]
 
 			frame := &ID3Frame{
-				ID:    frameID(data),
-				Flags: binary.BigEndian.Uint16(data[8:]),
+				ID:      frameID(data),
+				Version: version,
+				Flags:   binary.BigEndian.Uint16(data[8:]),
 			}
 
 			switch frame.ID {
@@ -295,9 +296,10 @@ func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 }
 
 type ID3Frame struct {
-	ID    FrameID
-	Flags uint16
-	Data  []byte
+	ID      FrameID
+	Version byte
+	Flags   uint16
+	Data    []byte
 }
 
 func (f *ID3Frame) String() string {
@@ -306,8 +308,18 @@ func (f *ID3Frame) String() string {
 		data, terminus = data[:128], "..."
 	}
 
-	return fmt.Sprintf("&ID3Frame{ID: %s, Flags: 0x%04x, Data: %d:%q%s}",
-		f.ID.String(), f.Flags, len(f.Data), data, terminus)
+	var version string
+	switch f.Version {
+	case 0x04:
+		version = "v2.4"
+	case 0x03:
+		version = "v2.3"
+	default:
+		version = "?"
+	}
+
+	return fmt.Sprintf("&ID3Frame{ID: %s, Version: %s, Flags: 0x%04x, Data: %d:%q%s}",
+		f.ID.String(), version, f.Flags, len(f.Data), data, terminus)
 }
 
 func (f *ID3Frame) Text() (string, error) {
