@@ -220,7 +220,7 @@ var bufPool = &sync.Pool{
 // Scan reads all valid ID3v2 tags from the reader and
 // returns all the frames in order. It returns an error
 // if the tags are invalid.
-func Scan(r io.Reader) (ID3Frames, error) {
+func Scan(r io.Reader) (Frames, error) {
 	buf := bufPool.Get()
 	defer bufPool.Put(buf)
 
@@ -228,7 +228,7 @@ func Scan(r io.Reader) (ID3Frames, error) {
 	s.Buffer(*buf.(*[]byte), 1<<28)
 	s.Split(id3Split)
 
-	var frames ID3Frames
+	var frames Frames
 
 	for s.Scan() {
 		data := s.Bytes()
@@ -275,7 +275,7 @@ func Scan(r io.Reader) (ID3Frames, error) {
 		for len(data) > 10 {
 			_ = data[9]
 
-			frame := &ID3Frame{
+			frame := &Frame{
 				ID:      frameID(data),
 				Version: version,
 				Flags:   FrameFlags(binary.BigEndian.Uint16(data[8:])),
@@ -350,12 +350,12 @@ func Scan(r io.Reader) (ID3Frames, error) {
 	return frames, nil
 }
 
-// ID3Frames is a slice of ID3v2 frames.
-type ID3Frames []*ID3Frame
+// Frames is a slice of ID3v2 frames.
+type Frames []*Frame
 
 // Lookup returns the last frame associated with a
 // given frame id, or nil.
-func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
+func (f Frames) Lookup(id FrameID) *Frame {
 	for i := len(f) - 1; i >= 0; i-- {
 		if f[i].ID == id {
 			return f[i]
@@ -365,15 +365,15 @@ func (f ID3Frames) Lookup(id FrameID) *ID3Frame {
 	return nil
 }
 
-// ID3Frame is a single ID3v2 frame.
-type ID3Frame struct {
+// Frame is a single ID3v2 frame.
+type Frame struct {
 	ID      FrameID
 	Version Version
 	Flags   FrameFlags
 	Data    []byte
 }
 
-func (f *ID3Frame) String() string {
+func (f *Frame) String() string {
 	data, terminus := f.Data, ""
 	if len(data) > 128 {
 		data, terminus = data[:128], "..."
@@ -395,7 +395,7 @@ func (f *ID3Frame) String() string {
 
 // Text interprets the frame data as a text string,
 // according to §4 of id3v2.4.0-structure.txt.
-func (f *ID3Frame) Text() (string, error) {
+func (f *Frame) Text() (string, error) {
 	if len(f.Data) < 2 {
 		return "", errors.New("id3: frame data is invalid")
 	}
