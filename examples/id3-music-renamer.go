@@ -80,6 +80,10 @@ func scan(work workUnit) error {
 		return nil
 	}
 
+	if _, err := os.Stat(newPath); err == nil {
+		return errors.New("destination file exists")
+	}
+
 	return os.Rename(work.path, newPath)
 }
 
