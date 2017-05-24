@@ -9,7 +9,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -169,11 +168,11 @@ func main() {
 	bw := bufio.NewWriter(w)
 
 	for _, line := range out {
-		if _, err := io.WriteString(bw, *line); err != nil {
+		if _, err := bw.WriteString(*line); err != nil {
 			panic(err)
 		}
 
-		if _, err := io.WriteString(bw, "\n"); err != nil {
+		if err := bw.WriteByte('\n'); err != nil {
 			panic(err)
 		}
 	}
