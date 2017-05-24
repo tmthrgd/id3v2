@@ -429,6 +429,13 @@ func (f *Frame) Text() (string, error) {
 				runes[i] = rune(v)
 			}
 
+			if runes[len(runes)-1] == 0x00 {
+				// The specification requires that the string be
+				// terminated with 0x00, but not all implementations
+				// do this.
+				runes = runes[:len(runes)-1]
+			}
+
 			return string(runes), nil
 		}
 
