@@ -106,8 +106,10 @@ func syncsafe(data []byte) uint32 {
 		uint32(data[2])<<7 | uint32(data[3])
 }
 
+var id3Token = []byte("ID3")
+
 func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	i := bytes.Index(data, []byte("ID3"))
+	i := bytes.Index(data, id3Token)
 	if i == -1 {
 		if len(data) < 2 {
 			return 0, nil, nil
