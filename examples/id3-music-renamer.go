@@ -62,18 +62,17 @@ func scan(work workUnit) error {
 		return nil
 	}
 
-	newURL := (&url.URL{
+	*work.out = (&url.URL{
 		Scheme: "file",
 		Path:   newPath,
 	}).String()
-	*work.out = newURL
 
 	name, padding := filepath.Base(work.path), " "
 	if len(name) < 100 {
 		padding = strings.Repeat(" ", 100-len(name))
 	}
 
-	fmt.Printf("%s%s%s\n", name, padding, filepath.Base(newPath))
+	fmt.Printf("%s%s%s\n", name, padding, newName)
 
 	if *dryrun {
 		return nil
