@@ -105,189 +105,189 @@ const (
 
 func (id FrameID) String() string {
 	switch id {
-	case 'A'<<24 | 'E'<<16 | 'N'<<8 | 'C':
+	case FrameAENC:
 		return "AENC: Audio encryption"
-	case 'A'<<24 | 'P'<<16 | 'I'<<8 | 'C':
+	case FrameAPIC:
 		return "APIC: Attached picture"
-	case 'A'<<24 | 'S'<<16 | 'P'<<8 | 'I':
+	case FrameASPI:
 		return "ASPI: Audio seek point index"
-	case 'C'<<24 | 'O'<<16 | 'M'<<8 | 'M':
+	case FrameCOMM:
 		return "COMM: Comments"
-	case 'C'<<24 | 'O'<<16 | 'M'<<8 | 'R':
+	case FrameCOMR:
 		return "COMR: Commercial frame"
-	case 'E'<<24 | 'N'<<16 | 'C'<<8 | 'R':
+	case FrameENCR:
 		return "ENCR: Encryption method registration"
-	case 'E'<<24 | 'Q'<<16 | 'U'<<8 | '2':
+	case FrameEQU2:
 		return "EQU2: Equalisation (2)"
-	case 'E'<<24 | 'T'<<16 | 'C'<<8 | 'O':
+	case FrameETCO:
 		return "ETCO: Event timing codes"
-	case 'G'<<24 | 'E'<<16 | 'O'<<8 | 'B':
+	case FrameGEOB:
 		return "GEOB: General encapsulated object"
-	case 'G'<<24 | 'R'<<16 | 'I'<<8 | 'D':
+	case FrameGRID:
 		return "GRID: Group identification registration"
-	case 'L'<<24 | 'I'<<16 | 'N'<<8 | 'K':
+	case FrameLINK:
 		return "LINK: Linked information"
-	case 'M'<<24 | 'C'<<16 | 'D'<<8 | 'I':
+	case FrameMCDI:
 		return "MCDI: Music CD identifier"
-	case 'M'<<24 | 'L'<<16 | 'L'<<8 | 'T':
+	case FrameMLLT:
 		return "MLLT: MPEG location lookup table"
-	case 'O'<<24 | 'W'<<16 | 'N'<<8 | 'E':
+	case FrameOWNE:
 		return "OWNE: Ownership frame"
-	case 'P'<<24 | 'R'<<16 | 'I'<<8 | 'V':
+	case FramePRIV:
 		return "PRIV: Private frame"
-	case 'P'<<24 | 'C'<<16 | 'N'<<8 | 'T':
+	case FramePCNT:
 		return "PCNT: Play counter"
-	case 'P'<<24 | 'O'<<16 | 'P'<<8 | 'M':
+	case FramePOPM:
 		return "POPM: Popularimeter"
-	case 'P'<<24 | 'O'<<16 | 'S'<<8 | 'S':
+	case FramePOSS:
 		return "POSS: Position synchronisation frame"
-	case 'R'<<24 | 'B'<<16 | 'U'<<8 | 'F':
+	case FrameRBUF:
 		return "RBUF: Recommended buffer size"
-	case 'R'<<24 | 'V'<<16 | 'A'<<8 | '2':
+	case FrameRVA2:
 		return "RVA2: Relative volume adjustment (2)"
-	case 'R'<<24 | 'V'<<16 | 'R'<<8 | 'B':
+	case FrameRVRB:
 		return "RVRB: Reverb"
-	case 'S'<<24 | 'E'<<16 | 'E'<<8 | 'K':
+	case FrameSEEK:
 		return "SEEK: Seek frame"
-	case 'S'<<24 | 'I'<<16 | 'G'<<8 | 'N':
+	case FrameSIGN:
 		return "SIGN: Signature frame"
-	case 'S'<<24 | 'Y'<<16 | 'L'<<8 | 'T':
+	case FrameSYLT:
 		return "SYLT: Synchronised lyric/text"
-	case 'S'<<24 | 'Y'<<16 | 'T'<<8 | 'C':
+	case FrameSYTC:
 		return "SYTC: Synchronised tempo codes"
-	case 'T'<<24 | 'A'<<16 | 'L'<<8 | 'B':
+	case FrameTALB:
 		return "TALB: Album/Movie/Show title"
-	case 'T'<<24 | 'B'<<16 | 'P'<<8 | 'M':
+	case FrameTBPM:
 		return "TBPM: BPM (beats per minute)"
-	case 'T'<<24 | 'C'<<16 | 'O'<<8 | 'M':
+	case FrameTCOM:
 		return "TCOM: Composer"
-	case 'T'<<24 | 'C'<<16 | 'O'<<8 | 'N':
+	case FrameTCON:
 		return "TCON: Content type"
-	case 'T'<<24 | 'C'<<16 | 'O'<<8 | 'P':
+	case FrameTCOP:
 		return "TCOP: Copyright message"
-	case 'T'<<24 | 'D'<<16 | 'E'<<8 | 'N':
+	case FrameTDEN:
 		return "TDEN: Encoding time"
-	case 'T'<<24 | 'D'<<16 | 'L'<<8 | 'Y':
+	case FrameTDLY:
 		return "TDLY: Playlist delay"
-	case 'T'<<24 | 'D'<<16 | 'O'<<8 | 'R':
+	case FrameTDOR:
 		return "TDOR: Original release time"
-	case 'T'<<24 | 'D'<<16 | 'R'<<8 | 'C':
+	case FrameTDRC:
 		return "TDRC: Recording time"
-	case 'T'<<24 | 'D'<<16 | 'R'<<8 | 'L':
+	case FrameTDRL:
 		return "TDRL: Release time"
-	case 'T'<<24 | 'D'<<16 | 'T'<<8 | 'G':
+	case FrameTDTG:
 		return "TDTG: Tagging time"
-	case 'T'<<24 | 'E'<<16 | 'N'<<8 | 'C':
+	case FrameTENC:
 		return "TENC: Encoded by"
-	case 'T'<<24 | 'E'<<16 | 'X'<<8 | 'T':
+	case FrameTEXT:
 		return "TEXT: Lyricist/Text writer"
-	case 'T'<<24 | 'F'<<16 | 'L'<<8 | 'T':
+	case FrameTFLT:
 		return "TFLT: File type"
-	case 'T'<<24 | 'I'<<16 | 'P'<<8 | 'L':
+	case FrameTIPL:
 		return "TIPL: Involved people list"
-	case 'T'<<24 | 'I'<<16 | 'T'<<8 | '1':
+	case FrameTIT1:
 		return "TIT1: Content group description"
-	case 'T'<<24 | 'I'<<16 | 'T'<<8 | '2':
+	case FrameTIT2:
 		return "TIT2: Title/songname/content description"
-	case 'T'<<24 | 'I'<<16 | 'T'<<8 | '3':
+	case FrameTIT3:
 		return "TIT3: Subtitle/Description refinement"
-	case 'T'<<24 | 'K'<<16 | 'E'<<8 | 'Y':
+	case FrameTKEY:
 		return "TKEY: Initial key"
-	case 'T'<<24 | 'L'<<16 | 'A'<<8 | 'N':
+	case FrameTLAN:
 		return "TLAN: Language(s)"
-	case 'T'<<24 | 'L'<<16 | 'E'<<8 | 'N':
+	case FrameTLEN:
 		return "TLEN: Length"
-	case 'T'<<24 | 'M'<<16 | 'C'<<8 | 'L':
+	case FrameTMCL:
 		return "TMCL: Musician credits list"
-	case 'T'<<24 | 'M'<<16 | 'E'<<8 | 'D':
+	case FrameTMED:
 		return "TMED: Media type"
-	case 'T'<<24 | 'M'<<16 | 'O'<<8 | 'O':
+	case FrameTMOO:
 		return "TMOO: Mood"
-	case 'T'<<24 | 'O'<<16 | 'A'<<8 | 'L':
+	case FrameTOAL:
 		return "TOAL: Original album/movie/show title"
-	case 'T'<<24 | 'O'<<16 | 'F'<<8 | 'N':
+	case FrameTOFN:
 		return "TOFN: Original filename"
-	case 'T'<<24 | 'O'<<16 | 'L'<<8 | 'Y':
+	case FrameTOLY:
 		return "TOLY: Original lyricist(s)/text writer(s)"
-	case 'T'<<24 | 'O'<<16 | 'P'<<8 | 'E':
+	case FrameTOPE:
 		return "TOPE: Original artist(s)/performer(s)"
-	case 'T'<<24 | 'O'<<16 | 'W'<<8 | 'N':
+	case FrameTOWN:
 		return "TOWN: File owner/licensee"
-	case 'T'<<24 | 'P'<<16 | 'E'<<8 | '1':
+	case FrameTPE1:
 		return "TPE1: Lead performer(s)/Soloist(s)"
-	case 'T'<<24 | 'P'<<16 | 'E'<<8 | '2':
+	case FrameTPE2:
 		return "TPE2: Band/orchestra/accompaniment"
-	case 'T'<<24 | 'P'<<16 | 'E'<<8 | '3':
+	case FrameTPE3:
 		return "TPE3: Conductor/performer refinement"
-	case 'T'<<24 | 'P'<<16 | 'E'<<8 | '4':
+	case FrameTPE4:
 		return "TPE4: Interpreted, remixed, or otherwise modified by"
-	case 'T'<<24 | 'P'<<16 | 'O'<<8 | 'S':
+	case FrameTPOS:
 		return "TPOS: Part of a set"
-	case 'T'<<24 | 'P'<<16 | 'R'<<8 | 'O':
+	case FrameTPRO:
 		return "TPRO: Produced notice"
-	case 'T'<<24 | 'P'<<16 | 'U'<<8 | 'B':
+	case FrameTPUB:
 		return "TPUB: Publisher"
-	case 'T'<<24 | 'R'<<16 | 'C'<<8 | 'K':
+	case FrameTRCK:
 		return "TRCK: Track number/Position in set"
-	case 'T'<<24 | 'R'<<16 | 'S'<<8 | 'N':
+	case FrameTRSN:
 		return "TRSN: Internet radio station name"
-	case 'T'<<24 | 'R'<<16 | 'S'<<8 | 'O':
+	case FrameTRSO:
 		return "TRSO: Internet radio station owner"
-	case 'T'<<24 | 'S'<<16 | 'O'<<8 | 'A':
+	case FrameTSOA:
 		return "TSOA: Album sort order"
-	case 'T'<<24 | 'S'<<16 | 'O'<<8 | 'P':
+	case FrameTSOP:
 		return "TSOP: Performer sort order"
-	case 'T'<<24 | 'S'<<16 | 'O'<<8 | 'T':
+	case FrameTSOT:
 		return "TSOT: Title sort order"
-	case 'T'<<24 | 'S'<<16 | 'R'<<8 | 'C':
+	case FrameTSRC:
 		return "TSRC: ISRC (international standard recording code)"
-	case 'T'<<24 | 'S'<<16 | 'S'<<8 | 'E':
+	case FrameTSSE:
 		return "TSSE: Software/Hardware and settings used for encoding"
-	case 'T'<<24 | 'S'<<16 | 'S'<<8 | 'T':
+	case FrameTSST:
 		return "TSST: Set subtitle"
-	case 'T'<<24 | 'X'<<16 | 'X'<<8 | 'X':
+	case FrameTXXX:
 		return "TXXX: User defined text information frame"
-	case 'U'<<24 | 'F'<<16 | 'I'<<8 | 'D':
+	case FrameUFID:
 		return "UFID: Unique file identifier"
-	case 'U'<<24 | 'S'<<16 | 'E'<<8 | 'R':
+	case FrameUSER:
 		return "USER: Terms of use"
-	case 'U'<<24 | 'S'<<16 | 'L'<<8 | 'T':
+	case FrameUSLT:
 		return "USLT: Unsynchronised lyric/text transcription"
-	case 'W'<<24 | 'C'<<16 | 'O'<<8 | 'M':
+	case FrameWCOM:
 		return "WCOM: Commercial information"
-	case 'W'<<24 | 'C'<<16 | 'O'<<8 | 'P':
+	case FrameWCOP:
 		return "WCOP: Copyright/Legal information"
-	case 'W'<<24 | 'O'<<16 | 'A'<<8 | 'F':
+	case FrameWOAF:
 		return "WOAF: Official audio file webpage"
-	case 'W'<<24 | 'O'<<16 | 'A'<<8 | 'R':
+	case FrameWOAR:
 		return "WOAR: Official artist/performer webpage"
-	case 'W'<<24 | 'O'<<16 | 'A'<<8 | 'S':
+	case FrameWOAS:
 		return "WOAS: Official audio source webpage"
-	case 'W'<<24 | 'O'<<16 | 'R'<<8 | 'S':
+	case FrameWORS:
 		return "WORS: Official Internet radio station homepage"
-	case 'W'<<24 | 'P'<<16 | 'A'<<8 | 'Y':
+	case FrameWPAY:
 		return "WPAY: Payment"
-	case 'W'<<24 | 'P'<<16 | 'U'<<8 | 'B':
+	case FrameWPUB:
 		return "WPUB: Publishers official webpage"
-	case 'W'<<24 | 'X'<<16 | 'X'<<8 | 'X':
+	case FrameWXXX:
 		return "WXXX: User defined URL link frame"
-	case 'E'<<24 | 'Q'<<16 | 'U'<<8 | 'A':
+	case FrameEQUA:
 		return "EQUA: Equalization"
-	case 'I'<<24 | 'P'<<16 | 'L'<<8 | 'S':
+	case FrameIPLS:
 		return "IPLS: Involved people list"
-	case 'R'<<24 | 'V'<<16 | 'A'<<8 | 'D':
+	case FrameRVAD:
 		return "RVAD: Relative volume adjustment"
-	case 'T'<<24 | 'D'<<16 | 'A'<<8 | 'T':
+	case FrameTDAT:
 		return "TDAT: Date"
-	case 'T'<<24 | 'I'<<16 | 'M'<<8 | 'E':
+	case FrameTIME:
 		return "TIME: Time"
-	case 'T'<<24 | 'O'<<16 | 'R'<<8 | 'Y':
+	case FrameTORY:
 		return "TORY: Original release year"
-	case 'T'<<24 | 'R'<<16 | 'D'<<8 | 'A':
+	case FrameTRDA:
 		return "TRDA: Recording dates"
-	case 'T'<<24 | 'S'<<16 | 'I'<<8 | 'Z':
+	case FrameTSIZ:
 		return "TSIZ: Size"
-	case 'T'<<24 | 'Y'<<16 | 'E'<<8 | 'R':
+	case FrameTYER:
 		return "TYER: Year"
 	default:
 		buf := [4]byte{

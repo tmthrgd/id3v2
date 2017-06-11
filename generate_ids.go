@@ -212,7 +212,7 @@ const (
 func (id FrameID) String() string {
 	switch id {
 {{- range .}}
-	case '{{index .ID 0 | printf "%c"}}'<<24 | '{{index .ID 1 | printf "%c"}}'<<16 | '{{index .ID 2 | printf "%c"}}'<<8 | '{{index .ID 3 | printf "%c"}}':
+	case Frame{{.ID}}:
 		return "{{.ID}}: {{.Description}}"
 {{- end}}
 	default:
