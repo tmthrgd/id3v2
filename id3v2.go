@@ -223,11 +223,11 @@ var bufPool = &sync.Pool{
 // returns all the frames in order. It returns an error
 // if the tags are invalid.
 func Scan(r io.Reader) (Frames, error) {
-	buf := bufPool.Get()
+	buf := bufPool.Get().(*[]byte)
 	defer bufPool.Put(buf)
 
 	s := bufio.NewScanner(r)
-	s.Buffer(*buf.(*[]byte), 20+1<<28)
+	s.Buffer(*buf, 20+1<<28)
 	s.Split(id3Split)
 
 	var frames Frames
