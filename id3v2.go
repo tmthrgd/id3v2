@@ -208,7 +208,7 @@ func frameID(data []byte) FrameID {
 		}
 	}
 
-	// This is probably the begging of padding.
+	// This is probably the beginning of padding.
 	return 0
 }
 
