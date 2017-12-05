@@ -209,21 +209,24 @@ const (
 {{- end}}
 )
 
-func (id FrameID) String() string {
-	switch id {
+var _FrameID_map = map[FrameID]string{
 {{- range .}}
-	case Frame{{.ID}}:
-		return "{{.ID}}: {{.Description}}"
+	Frame{{.ID}}: "{{.ID}}: {{.Description}}",
 {{- end}}
-	default:
-		buf := [4]byte{
-			byte(id >> 24),
-			byte(id >> 16),
-			byte(id >> 8),
-			byte(id),
-		}
-		return "FrameID(\"" + string(buf[:]) + "\")"
+}
+
+func (id FrameID) String() string {
+	if str, ok := _FrameID_map[id]; ok {
+		return str
 	}
+
+	buf := [4]byte{
+		byte(id >> 24),
+		byte(id >> 16),
+		byte(id >> 8),
+		byte(id),
+	}
+	return "FrameID(\"" + string(buf[:]) + "\")"
 }
 `))
 
