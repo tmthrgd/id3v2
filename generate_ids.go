@@ -9,6 +9,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"log"
 	"os"
 	"strings"
 	"text/template"
@@ -253,7 +254,7 @@ func main() {
 	}
 
 	if s.Err() != nil {
-		panic(s.Err())
+		log.Fatal(s.Err())
 	}
 
 	s = bufio.NewScanner(strings.NewReader(v23Spec))
@@ -273,7 +274,7 @@ func main() {
 	}
 
 	if s.Err() != nil {
-		panic(s.Err())
+		log.Fatal(s.Err())
 	}
 
 	uniq := ids[:0]
@@ -290,11 +291,11 @@ outer:
 
 	w, err := os.Create(*out)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer w.Close()
 
 	if err := tmpl.Execute(w, uniq); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
