@@ -9,6 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -110,7 +111,7 @@ func main() {
 
 	r, err := os.Open(flag.Arg(0))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer r.Close()
 
@@ -132,7 +133,7 @@ func main() {
 
 		path, err := url.Parse(line)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		out = append(out, &line)
@@ -146,7 +147,7 @@ func main() {
 	}
 
 	if s.Err() != nil {
-		panic(s.Err())
+		log.Fatal(s.Err())
 	}
 
 	wg.Wait()
@@ -160,7 +161,7 @@ func main() {
 
 	w, err := os.Create(outPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer w.Close()
 
@@ -168,15 +169,15 @@ func main() {
 
 	for _, line := range out {
 		if _, err := bw.WriteString(*line); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		if err := bw.WriteByte('\n'); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 
 	if err := bw.Flush(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
