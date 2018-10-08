@@ -187,7 +187,7 @@ func id3Split(data []byte, atEOF bool) (advance int, token []byte, err error) {
 const invalidFrameID = ^FrameID(0)
 
 func validIDByte(b byte) bool {
-	return (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9')
+	return b >= 'A' && b <= 'Z' || b >= '0' && b <= '9'
 }
 
 func frameID(data []byte) FrameID {
@@ -322,7 +322,7 @@ func Scan(r io.Reader) (Frames, error) {
 			}
 
 			if flags&tagFlagUnsynchronisation == tagFlagUnsynchronisation ||
-				(version == Version24 && frame.Flags&FrameFlagV24Unsynchronisation != 0) {
+				version == Version24 && frame.Flags&FrameFlagV24Unsynchronisation != 0 {
 				frame.Data = make([]byte, 0, size)
 
 				for i := uint32(0); i < size; i++ {
