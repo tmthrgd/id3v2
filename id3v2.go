@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"sync"
 	"unicode/utf16"
 )
@@ -360,6 +361,19 @@ func Scan(r io.Reader) (Frames, error) {
 	}
 
 	return frames, nil
+}
+
+// ScanFile reads all valid ID3v2 tags from a file and
+// returns all the frames in order. It returns an error
+// if the tags are invalid, or the file cannot be opened.
+func ScanFile(path string) (Frames, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return Scan(f)
 }
 
 // Frames is a slice of ID3v2 frames.

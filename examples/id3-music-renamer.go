@@ -22,13 +22,7 @@ import (
 var dryrun = flag.Bool("dry-run", false, "does not perform the file renaming")
 
 func scan(work workUnit) error {
-	f, err := os.Open(work.path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	frames, err := id3v2.Scan(f)
+	frames, err := id3v2.ScanFile(work.path)
 	if err != nil {
 		return err
 	}
