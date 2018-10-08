@@ -367,8 +367,8 @@ func Scan(r io.Reader) (Frames, error) {
 // Frames is a slice of ID3v2 frames.
 type Frames []*Frame
 
-// Lookup returns the last frame associated with a
-// given frame id, or nil.
+// Lookup returns the last frame with the given frame
+// id, or nil.
 func (f Frames) Lookup(id FrameID) *Frame {
 	for i := len(f) - 1; i >= 0; i-- {
 		if f[i].ID == id {
