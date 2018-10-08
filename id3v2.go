@@ -202,14 +202,12 @@ func frameID(data []byte) FrameID {
 		return FrameID(binary.BigEndian.Uint32(data))
 	}
 
-	for _, v := range data {
-		if v != 0 {
-			return invalidFrameID
-		}
+	if data[0] == 0 && data[1] == 0 && data[2] == 0 && data[3] == 0 {
+		// This is probably the beginning of padding.
+		return 0
 	}
 
-	// This is probably the beginning of padding.
-	return 0
+	return invalidFrameID
 }
 
 var bufPool = &sync.Pool{
