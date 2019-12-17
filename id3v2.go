@@ -16,7 +16,10 @@ import (
 	"io"
 	"os"
 	"sync"
-	"unicode/utf16"
+
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/unicode"
 )
 
 // This is an implementation of v2.4.0 of the ID3v2 tagging format,
@@ -417,6 +420,11 @@ func (f *Frame) String() string {
 		f.ID.String(), version, f.Flags, len(f.Data), data, terminus)
 }
 
+var (
+	zeroBytes = []byte{0x00, 0x00}
+	zeroByte  = zeroBytes[:1]
+)
+
 // Text interprets the frame data as a text string,
 // according to §4 of id3v2.4.0-structure.txt.
 func (f *Frame) Text() (string, error) {
@@ -429,74 +437,28 @@ func (f *Frame) Text() (string, error) {
 	}
 
 	data := f.Data[1:]
-	var ord binary.ByteOrder = binary.BigEndian
-
+	var enc encoding.Encoding
 	switch f.Data[0] {
 	case textEncodingISO88591:
-		for _, v := range data {
-			if v&0x80 == 0 {
-				continue
-			}
-
-			runes := make([]rune, len(data))
-			for i, v := range data {
-				runes[i] = rune(v)
-			}
-
-			if runes[len(runes)-1] == 0x00 {
-				// The specification requires that the string be
-				// terminated with 0x00, but not all implementations
-				// do this.
-				runes = runes[:len(runes)-1]
-			}
-
-			return string(runes), nil
-		}
-
-		fallthrough
-	case textEncodingUTF8:
-		if len(data) != 0 && data[len(data)-1] == 0x00 {
-			// The specification requires that the string be
-			// terminated with 0x00, but not all implementations
-			// do this.
-			data = data[:len(data)-1]
-		}
-
-		return string(data), nil
+		data = bytes.TrimSuffix(data, zeroByte)
+		enc = charmap.ISO8859_1
 	case textEncodingUTF16:
-		if len(data) < 2 {
-			return "", errors.New("id3: missing UTF-16 BOM")
-		}
-
-		if data[0] == 0xff && data[1] == 0xfe {
-			ord = binary.LittleEndian
-		} else if data[0] == 0xfe && data[1] == 0xff {
-			ord = binary.BigEndian
-		} else {
-			return "", errors.New("id3: invalid UTF-16 BOM")
-		}
-
-		data = data[2:]
-		fallthrough
+		data = bytes.TrimSuffix(data, zeroBytes)
+		enc = unicode.UTF16(unicode.BigEndian, unicode.ExpectBOM)
 	case textEncodingUTF16BE:
-		if len(data)%2 != 0 {
-			return "", errors.New("id3: UTF-16 data is not even number of bytes")
-		}
-
-		u16s := make([]uint16, len(data)/2)
-		for i := range u16s {
-			u16s[i] = ord.Uint16(data[i*2:])
-		}
-
-		if len(u16s) != 0 && u16s[len(u16s)-1] == 0x0000 {
-			// The specification requires that the string be
-			// terminated with 0x00 0x00, but not all
-			// implementations do this.
-			u16s = u16s[:len(u16s)-1]
-		}
-
-		return string(utf16.Decode(u16s)), nil
+		data = bytes.TrimSuffix(data, zeroBytes)
+		enc = unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM)
+	case textEncodingUTF8:
+		data = bytes.TrimSuffix(data, zeroByte)
+		return string(data), nil
 	default:
 		return "", errors.New("id3: frame uses unsupported encoding")
 	}
+
+	data, err := enc.NewDecoder().Bytes(data)
+	if err != nil {
+		return "", fmt.Errorf("id3: frame has invalid text data: %w", err)
+	}
+
+	return string(data), nil
 }
